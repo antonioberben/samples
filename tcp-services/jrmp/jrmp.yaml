@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jrmp-server
+  labels:
+    app: jrmp-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: jrmp-server
+  ports:
+  - name: tcp
+    protocol: TCP
+    port: 1100
+    targetPort: 1100
+  - name: tcp-registry
+    protocol: TCP
+    port: 1099
+    targetPort:  1099
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jrmp-server
+  labels:
+    app: jrmp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jrmp-server
+  template:
+    metadata:
+      labels:
+        app: jrmp-server
+    spec:
+      containers:
+      - name: jrmp-server
+        image: antonioberben/jrmp-server:0.9.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 1100
+        - containerPort: 1099
+        env:
+        - name: "RMI_HOST"
+          value: "jrmp-server.demo.svc.cluster.local"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jrmp-client
+  labels:
+    app: jrmp-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jrmp-client
+  template:
+    metadata:
+      labels:
+        app: jrmp-client
+    spec:
+      containers:
+      - name: jrmp-client
+        image: antonioberben/jrmp-client:0.9.0
+        imagePullPolicy: Always
+        env:
+        - name: "RMI_HOST"
+          value: "jrmp-server.demo.svc.cluster.local"
