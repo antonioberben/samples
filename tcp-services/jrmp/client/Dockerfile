@@ -14,4 +14,4 @@ ENV RMI_PORT=1099
 RUN javac *.java
 
 # Run the client
-CMD java HelloClient
+CMD /app/start-client.sh

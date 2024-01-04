@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jrmp-server
-  namespace: demo
+  namespace: demo-tls
   labels:
     app: jrmp-server
 spec:
@@ -23,7 +23,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jrmp-server
-  namespace: demo
+  namespace: demo-tls
   labels:
     app: jrmp-server
 spec:
@@ -45,17 +45,35 @@ spec:
         - containerPort: 1099
         env:
         - name: "RMI_HOST"
-          value: "jrmp-server.demo.svc.cluster.local"
+          value: "jrmp-server.demo-tls.svc.cluster.local"
+        - name: TLS_ENABLED
+          value: "enabled"
+        - name: KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keystore-password 
+              key: password
+        - name: P12_CERT
+          value: "/app/security/server.p12"
+        - name: KEYSTORE_PATH
+          value: "/app/security/keystore.jks"
         - name: RMI_REGISTRY_PORT
           value: "1099"
         - name: RMI_SERVER_PORT
           value: "1100"
+        volumeMounts:
+        - name: keystore-volume
+          mountPath: "/app/security"
+      volumes:
+      - name: keystore-volume
+        secret:
+          secretName: server.p12
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jrmp-client
-  namespace: demo
+  namespace: demo-tls
   labels:
     app: jrmp-client
 spec:
@@ -74,4 +92,22 @@ spec:
         imagePullPolicy: Always
         env:
         - name: "RMI_HOST"
-          value: "jrmp-server.demo.svc.cluster.local"
+          value: "jrmp-server.demo-tls.svc.cluster.local"
+        - name: "TLS_ENABLED"
+          value: "enabled"
+        - name: "CERTIFICATE_PATH"
+          value: "/app/security/server.crt"
+        - name: "TRUSTSTORE_PATH"
+          value: "/app/security/truststore.jks"
+        - name: "TRUSTSTORE_PASSWORD"      
+          valueFrom:
+            secretKeyRef:
+              name: truststore-password
+              key: password
+        volumeMounts:
+        - name: certificate-volume
+          mountPath: "/app/security"
+      volumes:
+      - name: certificate-volume
+        secret:
+          secretName: certificate-secret

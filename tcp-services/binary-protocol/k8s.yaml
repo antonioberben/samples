@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: demo
+  labels:
+    app: mysql
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql
+  ports:
+  - name: tcp
+    protocol: TCP
+    port: 3306
+    targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: demo
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.23
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        # - name: mysql-config-volume
+        #   mountPath: /etc/mysql/my.cnf
+        #   subPath: my.cnf
+        - name: mysql-config-volume
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: mypassword 
+        - name: MYSQL_USER
+          value: myuser
+        - name: MYSQL_PASSWORD
+          value: myuserpassword
+        - name: MYSQL_DATABASE
+          value: mydatabase
+      volumes:
+      - name: mysql-config-volume
+        configMap:
+          name: mysql-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld
+  namespace: demo
+  labels:
+    app: helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
+  template:
+    metadata:
+      labels:
+        app: helloworld
+    spec:
+      containers:
+      - name: helloworld
+        image: antonioberben/java-mysql-demo:0.9.0
+        imagePullPolicy: Always
+        env:
+        - name: DB_HOST
+          value: mysql.demo.svc.cluster.local
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_USER
+          value: myuser
+        - name: DB_PASSWORD
+          value: myuserpassword
+        - name: DB_NAME
+          value: mydatabase

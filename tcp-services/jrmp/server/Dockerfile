@@ -10,6 +10,8 @@ COPY . /app
 ENV RMI_REGISTRY_PORT=1099
 ENV RMI_SERVER_PORT=1100
 ENV RMI_HOST=0.0.0.0
+ENV TRUSTSTORE_PATH=/app/security/truststore.jks
+ENV TRUSTSTORE_PASSWORD=password
 
 # Compile the Java files
 RUN javac *.java
@@ -18,4 +20,4 @@ RUN javac *.java
 EXPOSE $RMI_REGISTRY_PORT
 EXPOSE $RMI_SERVER_PORT
 
-CMD rmiregistry $RMI_REGISTRY_PORT & java -Djava.rmi.server.hostname=$RMI_HOST -Djava.rmi.server.useLocalHostname=true HelloServer
+CMD /app/start-server.sh
