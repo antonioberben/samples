@@ -1,13 +1,13 @@
 
 
 ```bash
-docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mypassword -e MYSQL_USER=myuser -e MYSQL_PASSWORD=myuserpassword -e MYSQL_DATABASE=mydatabase -p 3306:3306 -v $PWD/my.cnf:/etc/mysql/my.cnf -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql mysql:8.0.23
+docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mypassword -e MYSQL_USER=myuser -e MYSQL_PASSWORD=myuserpassword -e MYSQL_DATABASE=mydatabase -p 3306:3306 -v $PWD/my.cnf:/etc/mysql/my.cnf -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql mysql:5.6
 ```
 
 OR
 
 ```bash
-docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mypassword -e MYSQL_USER=myuser -e MYSQL_PASSWORD=myuserpassword -e MYSQL_DATABASE=mydatabase -p 3306:3306 -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql mysql:8.0.23
+docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mypassword -e MYSQL_USER=myuser -e MYSQL_PASSWORD=myuserpassword -e MYSQL_DATABASE=mydatabase -p 3306:3306 -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql mysql:5.6
 ```
 
 docker exec -it mysql mysql -umyuser -pmyuserpassword -e "USE mydatabase; SELECT * FROM demo;"
@@ -37,4 +37,14 @@ openssl req -new -x509 -nodes -days 3600 -key ca-key.pem -out ca.pem -subj "/C=U
 openssl req -newkey rsa:2048 -days 3600 -nodes -keyout server-key.pem -out server-req.pem -subj "/C=US/ST=YourState/L=YourCity/O=YourOrganization/CN=*"
 openssl rsa -in server-key.pem -out server-key.pem
 openssl x509 -req -in server-req.pem -days 3600 -CA ca.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+```
+
+
+```bash
+istioctl install -y --set profile=ambient --set "components.ingressGateways[0].enabled=true" --set "components.ingressGateways[0].name=istio-ingressgateway" --set meshConfig.accessLogFile=/dev/stdout
+
+
+kubectl sniff $(kubectl get pods -l app=helloworld -o=jsonpath={.items..metadata.name} -n demo) -n demo -p
+
+kubectl sniff $(kubectl get pods -l app=helloworld -o=jsonpath={.items..metadata.name} -n demo-tls) -n demo-tls -p
 ```
