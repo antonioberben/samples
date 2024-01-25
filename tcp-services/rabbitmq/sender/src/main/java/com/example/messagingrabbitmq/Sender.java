@@ -21,7 +21,7 @@ public class Sender {
 
     @Scheduled(fixedDelay = 2000)
     public void send() {
-        rabbitTemplate.convertAndSend(queueName, "Hello, RabbitMQ!");
+        rabbitTemplate.convertAndSend(queueName, "foo.bar.baz", "Hello, RabbitMQ!");
     }
 
 }
