@@ -1,0 +1,59 @@
+provisionDataStore:
+  cassandra: false
+
+allInOne:
+  enabled: true
+  
+
+storage:
+  # allowed values (cassandra, elasticsearch)
+  # type: cassandra
+  type: ""
+  # cassandra:
+  #   host: cassandra
+  #   port: 9042
+  #   tls:
+  #     enabled: false
+  #     secretName: cassandra-tls-secret
+  #   user: user
+  #   usePassword: true
+  #   password: password
+  #   keyspace: jaeger_v1_test
+
+# # Begin: Override values on the Cassandra subchart to customize for Jaeger
+# cassandra:
+#   persistence:
+#     # To enable persistence, please see the documentation for the Cassandra chart
+#     enabled: false
+#   config:
+#     cluster_name: jaeger
+#     seed_size: 1
+#     dc_name: dc1
+#     rack_name: rack1
+#     endpoint_snitch: GossipingPropertyFileSnitch
+
+agent:
+  enabled: false
+  
+collector:
+  enabled: false
+  service:
+    type: LoadBalancer
+    grpc:
+      port: 14250
+    # httpPort: can accept spans directly from clients in jaeger.thrift format
+    http:
+      port: 14268
+    # can accept Zipkin spans in JSON or Thrift
+    zipkin: {}
+      # port: 9411
+    otlp:
+      grpc: {}
+        # port: 4317
+        # nodePort:
+      http: {}
+        # port: 4318
+        # nodePort:
+
+query:
+  enabled: false
