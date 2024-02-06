@@ -8,12 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class SenderApplication {
 
-	static final String topicExchangeName = "spring-boot-exchange";
-
-	static final String queueName = "spring-boot";
-
-	public static void main(String[] args) throws InterruptedException {
-		SpringApplication.run(SenderApplication.class, args).close();
+	public static void main(String[] args) {
+		SpringApplication.run(SenderApplication.class, args);
 	}
 
 }
